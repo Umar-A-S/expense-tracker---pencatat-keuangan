@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Expense Tracker PWA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div id="app">
+        <main id="content">
+            <!-- TAB 1: INPUT -->
+            <section id="tab-input" class="tab-page active">
+                <div class="glass header-card">
+                    <div class="toggle-container">
+                        <span id="label-expense" class="active-red">Pengeluaran</span>
+                        <label class="switch">
+                            <input type="checkbox" id="type-toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span id="label-income">Pemasukan</span>
+                    </div>
+                    <h1 id="display-amount">0</h1>
+                    <div id="calc-preview"></div>
+                </div>
+
+                <div class="categories-grid" id="category-container">
+                    <!-- Dinamis via JS -->
+                </div>
+                
+                <!-- Chips untuk Auto-Suggest -->
+                <div id="auto-suggest-chips" class="chips-container glass hidden">
+                    <p style="font-size:12px; margin-bottom:5px; color:#aaa;">Pilih barang (atau tahan kategori untuk simpan langsung):</p>
+                    <div id="chips-list"></div>
+                </div>
+
+                <div class="numpad glass">
+                    <button class="num-btn" data-val="1">1</button>
+                    <button class="num-btn" data-val="2">2</button>
+                    <button class="num-btn" data-val="3">3</button>
+                    <button class="num-btn op-btn" data-val="+5k">+5k</button>
+                    
+                    <button class="num-btn" data-val="4">4</button>
+                    <button class="num-btn" data-val="5">5</button>
+                    <button class="num-btn" data-val="6">6</button>
+                    <button class="num-btn op-btn" data-val="+10k">+10k</button>
+                    
+                    <button class="num-btn" data-val="7">7</button>
+                    <button class="num-btn" data-val="8">8</button>
+                    <button class="num-btn" data-val="9">9</button>
+                    <button class="num-btn op-btn" data-val="+50k">+50k</button>
+                    
+                    <button class="num-btn" data-val="C">C</button>
+                    <button class="num-btn" data-val="0">0</button>
+                    <button class="num-btn" data-val="00">00</button>
+                    <button class="num-btn op-btn" data-val="+">&plus;</button>
+                    
+                    <button class="num-btn op-btn" style="grid-column: span 4;" id="btn-mic">&phone; Voice Input</button>
+                </div>
+            </section>
+
+            <!-- TAB 2: HISTORY -->
+            <section id="tab-history" class="tab-page hidden">
+                <div class="glass header-card">
+                    <h2>Riwayat Transaksi</h2>
+                    <p style="font-size:12px; color:#aaa;">*Swipe ke kiri untuk menghapus</p>
+                </div>
+                <div id="history-list" class="scroll-area"></div>
+            </section>
+
+            <!-- TAB 3: INSIGHTS -->
+            <section id="tab-insights" class="tab-page hidden">
+                <div class="glass hero-card">
+                    <h2>Dashboard Analitik</h2>
+                    <p>Sisa Saldo: <strong id="insight-saldo">Rp 0</strong></p>
+                    <p>Pengeluaran Hari Ini: <strong id="insight-today">Rp 0</strong></p>
+                    <p>Total Bulan Ini: <strong id="insight-expense">Rp 0</strong></p>
+                    <div id="burn-rate-warning" class="warning-box"></div>
+                </div>
+
+                <div class="glass stat-card">
+                    <h3>Pengeluaran Mingguan</h3>
+                    <div id="weekly-table" class="table-container"></div>
+                </div>
+
+                <div class="glass stat-card">
+                    <h3>Rekap Bulanan</h3>
+                    <select id="year-filter" class="glass-input" style="width:100%; margin-bottom:10px;">
+                        <option value="2026">2026</option>
+                    </select>
+                    <div id="monthly-table" class="table-container"></div>
+                </div>
+
+                <div class="glass stat-card pie-container">
+                    <h3>Top 6 Kategori</h3>
+                    <div id="pie-chart" class="conic-pie"></div>
+                    <ul id="top-categories-list" class="legend-list"></ul>
+                </div>
+                
+                <div class="glass stat-card">
+                    <h3>Barang Termahal Bulan Ini</h3>
+                    <p id="highest-item" style="color:var(--red); font-weight:bold; font-size:1.2rem;">-</p>
+                </div>
+
+                <div class="glass stat-card">
+                    <h3>Saran AI Lokal</h3>
+                    <p id="ai-suggestion">-</p>
+                </div>
+                
+                <button id="btn-export" class="glass-btn" style="margin-bottom: 20px;">Export Data (JSON)</button>
+            </section>
+        </main>
+
+        <!-- BOTTOM NAV -->
+        <nav id="bottom-nav" class="glass">
+            <button class="nav-btn active" data-target="tab-input">&plus; Input</button>
+            <button class="nav-btn" data-target="tab-history">&equiv; History</button>
+            <button class="nav-btn" data-target="tab-insights">&Oslash; Insights</button>
+        </nav>
+    </div>
+    
+    <!-- Modal Add Category -->
+    <div id="modal-add-cat" class="modal hidden">
+        <div class="glass modal-content">
+            <h3>Tambah Kategori</h3>
+            <input type="text" id="new-cat-name" placeholder="Nama Kategori..." class="glass-input" autocomplete="off">
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button id="btn-cancel-cat" class="glass-btn">Batal</button>
+                <button id="btn-save-cat" class="glass-btn" style="background:var(--green); border:none;">Simpan</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
