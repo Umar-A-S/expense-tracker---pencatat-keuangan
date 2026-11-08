@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Expense Tracker PWA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div id="app">
+        <main id="content">
+            <!-- TAB 1: INPUT -->
+            <section id="tab-input" class="tab-page active">
+                <div class="glass header-card">
+                    <div class="toggle-container">
+                        <span id="label-expense" class="active-red">Pengeluaran</span>
+                        <label class="switch">
+                            <input type="checkbox" id="type-toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span id="label-income">Pemasukan</span>
+                    </div>
+                    <h1 id="display-amount">0</h1>
+                    <div id="calc-preview"></div>
+                </div>
+
+                <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 8px; font-weight: 600;">Kategori Barang:</p>
+                <div class="categories-grid" id="category-container">
+                    <!-- Dinamis via JS -->
+                </div>
+                
+                <!-- Inline Detail Panel (Muncul di bawah kategori saat kategori diklik) -->
+                <div id="category-detail-panel" class="glass detail-panel hidden">
+                    <div class="detail-panel-header">
+                        <span id="inline-cat-title" style="font-weight: 700; font-size: 0.9rem; color: var(--green);">Pilih Kategori</span>
+                        <button id="btn-close-detail" style="background:none; border:none; color:#aaa; font-size:1.2rem; cursor:pointer; padding:0 4px;">&times;</button>
+                    </div>
+                    <div id="inline-fields-container" style="margin: 10px 0;"></div>
+                    <div id="inline-suggest-box" style="margin-bottom: 10px;">
+                        <p style="font-size: 0.75rem; color: #aaa; margin-bottom: 4px;">Saran pembelian berulang (klik untuk isi):</p>
+                        <div id="inline-chips-list" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+                    </div>
+                    <button id="btn-inline-save" class="glass-btn" style="background:var(--green); border:none; padding:10px; font-weight:bold; font-size:0.9rem;">Simpan Transaksi</button>
+                </div>
+
+                <div class="numpad glass">
+                    <button class="num-btn" data-val="1">1</button>
+                    <button class="num-btn" data-val="2">2</button>
+                    <button class="num-btn" data-val="3">3</button>
+                    <button class="num-btn op-btn" data-val="+5k">+5k</button>
+                    
+                    <button class="num-btn" data-val="4">4</button>
+                    <button class="num-btn" data-val="5">5</button>
+                    <button class="num-btn" data-val="6">6</button>
+                    <button class="num-btn op-btn" data-val="+10k">+10k</button>
+                    
+                    <button class="num-btn" data-val="7">7</button>
+                    <button class="num-btn" data-val="8">8</button>
+                    <button class="num-btn" data-val="9">9</button>
+                    <button class="num-btn op-btn" data-val="+50k">+50k</button>
+                    
+                    <button class="num-btn" data-val="C">C</button>
+                    <button class="num-btn" data-val="0">0</button>
+                    <button class="num-btn" data-val="00">00</button>
+                    <button class="num-btn" data-val="000">000</button>
+                    
+                    <button class="num-btn op-btn" style="grid-column: span 4;" data-val="+">&plus;</button>
+                </div>
+            </section>
+
+            <!-- TAB 2: HISTORY -->
+            <section id="tab-history" class="tab-page hidden">
+                <div class="glass header-card">
+                    <h2>Riwayat Transaksi</h2>
+                    <p style="font-size:12px; color:#aaa;">*Swipe ke kiri untuk menghapus</p>
+                </div>
+                <div id="history-list" class="scroll-area"></div>
+            </section>
+
+            <!-- TAB 3: INSIGHTS -->
+            <section id="tab-insights" class="tab-page hidden">
+                <div class="glass hero-card">
+                    <h2 class="insight-title">Dashboard Analitik</h2>
+                    <div class="saldo-display-box">
+                        <span class="insight-label">Sisa Saldo</span>
+                        <h1 id="insight-saldo" class="insight-saldo-val">Rp 0</h1>
+                    </div>
+                    <div class="insight-grid-metrics">
+                        <div class="metric-item">
+                            <span class="metric-label">Pengeluaran Hari Ini</span>
+                            <strong id="insight-today" style="color:var(--red);">Rp 0</strong>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Pengeluaran Bulan Ini</span>
+                            <strong id="insight-expense" style="color:var(--red);">Rp 0</strong>
+                        </div>
+                    </div>
+                    <div id="burn-rate-warning" class="warning-box"></div>
+                </div>
+
+                <div class="glass stat-card">
+                    <h3>Pengeluaran Mingguan</h3>
+                    <div id="weekly-table" class="table-container"></div>
+                </div>
+
+                <div class="glass stat-card">
+                    <div class="card-header-flex">
+                        <h3>Rekap Bulanan</h3>
+                        <select id="year-filter" class="glass-select">
+                            <option value="2026">2026</option>
+                        </select>
+                    </div>
+                    <div id="monthly-table" class="table-container"></div>
+                </div>
+
+                <div class="glass stat-card pie-container">
+                    <h3>Top 6 Kategori</h3>
+                    <div id="pie-chart" class="conic-pie"></div>
+                    <ul id="top-categories-list" class="legend-list"></ul>
+                </div>
+                
+                <div class="glass stat-card highlight-card">
+                    <h3>Barang Termahal Bulan Ini</h3>
+                    <p id="highest-item" class="highest-item-text">-</p>
+                </div>
+
+                <div class="glass stat-card">
+                    <h3>Saran AI Lokal</h3>
+                    <p id="ai-suggestion" class="ai-suggestion-text">-</p>
+                </div>
+                
+                <button id="btn-export" class="glass-btn export-btn">Export Data (JSON)</button>
+            </section>
+        </main>
+
+        <!-- BOTTOM NAV -->
+        <nav id="bottom-nav" class="glass">
+            <button class="nav-btn active" data-target="tab-input">&plus; Input</button>
+            <button class="nav-btn" data-target="tab-history">&equiv; History</button>
+            <button class="nav-btn" data-target="tab-insights">&Oslash; Insights</button>
+        </nav>
+    </div>
+    
+    <!-- Modal Add Category -->
+    <div id="modal-add-cat" class="modal hidden">
+        <div class="glass modal-content">
+            <h3>Tambah Kategori</h3>
+            <input type="text" id="new-cat-name" placeholder="Nama Kategori..." class="glass-input" autocomplete="off">
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button id="btn-cancel-cat" class="glass-btn">Batal</button>
+                <button id="btn-save-cat" class="glass-btn" style="background:var(--green); border:none;">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Transaksi -->
+    <div id="modal-edit-tx" class="modal hidden">
+        <div class="glass modal-content">
+            <h3>Edit Transaksi</h3>
+            <input type="hidden" id="edit-tx-id">
+            <div style="margin: 12px 0;">
+                <label style="font-size:0.8rem; color:#aaa; display:block; margin-bottom:4px;">Nominal (Rp):</label>
+                <input type="number" id="edit-tx-amount" class="glass-input" autocomplete="off">
+            </div>
+            <div style="margin: 12px 0;">
+                <label style="font-size:0.8rem; color:#aaa; display:block; margin-bottom:4px;">Kategori:</label>
+                <input type="text" id="edit-tx-category" class="glass-input" autocomplete="off">
+            </div>
+            <div style="margin: 12px 0;">
+                <label style="font-size:0.8rem; color:#aaa; display:block; margin-bottom:4px;">Nama Barang / Detail:</label>
+                <input type="text" id="edit-tx-item" class="glass-input" autocomplete="off">
+            </div>
+            <div style="display:flex; gap:8px; margin-top:15px;">
+                <button id="btn-delete-tx-modal" class="glass-btn" style="background:var(--red); border:none;">Hapus</button>
+                <button id="btn-cancel-edit" class="glass-btn">Batal</button>
+                <button id="btn-save-edit" class="glass-btn" style="background:var(--green); border:none;">Simpan</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
